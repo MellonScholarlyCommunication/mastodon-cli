@@ -52,7 +52,7 @@ program
 
         let since;
 
-        if (options.history) {
+        if (options.history && fs.existsSync(options.history)) {
             since = fs.readFileSync(options.history, { encoding: 'utf-8' });
             logger.info(`${options.history} -> since ${since}`);
         }
