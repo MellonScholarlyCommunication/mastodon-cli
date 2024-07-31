@@ -28,7 +28,7 @@
             <p>Monitoring https://openbiblio.social/@hochstenbach</p>
 
             <h2>Details</h2>
-            
+
             <p class="Details"></p>
 
             <h2>Inbox</h2>
@@ -43,7 +43,7 @@
                 });
 
                 function updateList() {
-                    $.getJSON("/inbox/", (data) => {
+                    $.getJSON("inbox/", (data) => {
                         const members = data['contains'].sort(
                             function(a,b){ return b.localeCompare(a); }
                         );
