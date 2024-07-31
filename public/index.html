@@ -19,13 +19,19 @@
             }
         </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <title>Mastodon Bot v 1.0.0</title>
+        <title>Mastodon Bot</title>
     </head>
     <body>
         <main class="container">
-            <h1>Mastodon Bot</h1>
+            <h1>Mastodon Bot v 1.0.0</h1>
 
+            <p>Monitoring https://openbiblio.social/@hochstenbach</p>
+
+            <h2>Details</h2>
+            
             <p class="Details"></p>
+
+            <h2>Inbox</h2>
 
             <ul class="List"> 
             </ul>
@@ -38,7 +44,9 @@
 
                 function updateList() {
                     $.getJSON("/inbox/", (data) => {
-                        const members = data['contains'];
+                        const members = data['contains'].sort(
+                            function(a,b){ return b.localeCompare(a); }
+                        );
                         $('.List').empty();
                         for (let i = 0 ; i < members.length ; i++) {
                             const member = members[i];
