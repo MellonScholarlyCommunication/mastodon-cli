@@ -38,7 +38,7 @@ program
   .option('--history <file>', 'Keep and use last since id from history file',HISTORY_FILE)
   .option('--id <id>', 'Get one notification by id')
   .option('--since <id>', 'Return results more recent than id')
-  .option('--serialize <output>', 'Serialize what?', SERIALIZE_TYPE)
+  .option('--type <output>', 'Serialize what?', SERIALIZE_TYPE)
   .option('--handler <handler>', 'Notification handler',HANDLER)
   .action( async (options) => {
         const url = options.url;
@@ -47,7 +47,7 @@ program
         const inbox = options.inbox;
         const limit = options.limit;
         const by_id = options.id;
-        const serialize_type = options.serialize;
+        const serialize_type = options.type;
         const handler = options.handler;
 
         let since;

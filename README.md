@@ -26,3 +26,8 @@ yarn install
 - `--since <id>` : Retrieve notifications created since some id
 - `--serialize <ouput>` : What to serialize? 'raw': ActivityStreams2 , 'magalodon': Megalodon processed JSON
 - `--handler <handler>` : Hander JS file that can preprocess the generated output
+
+## ENVIRONMENT
+
+See `.env-example` for possible environmment variables that can be set. 
+Rename to `.env` to set a default environment.
