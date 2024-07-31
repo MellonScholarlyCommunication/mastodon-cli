@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        />
+        <style>
+            .Details {
+                background-color: #eee;
+                padding-left: 20px;
+            }
+            .TootMeta {
+                background-color: black;
+                color: white;
+            }
+            .TootText {
+                font-family: monospace;
+                color:blueviolet;
+            }
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <title>Mastodon Bot v 1.0.0</title>
+    </head>
+    <body>
+        <main class="container">
+            <h1>Mastodon Bot</h1>
+
+            <p class="Details"></p>
+
+            <ul class="List"> 
+            </ul>
+
+            <!-- jQuery Script -->
+            <script>
+                $(document).ready(function() {
+                    setTimeout(updateList, 2000);
+                });
+
+                function updateList() {
+                    $.getJSON("/inbox/", (data) => {
+                        const members = data['contains'];
+                        $('.List').empty();
+                        for (let i = 0 ; i < members.length ; i++) {
+                            const member = members[i];
+                            $('.List').append(`<li><a href="${member}" class="toot">${member}</a></li>`); 
+                        }
+
+                        $("a.toot").click(async function(e) {
+                            e.preventDefault();
+                            const href = $(this).attr('href');
+                            const toot = await $.getJSON(href);
+                            const content = toot['content'];
+                            const published = toot['published'];
+                            const attributedTo = toot['attributedTo'];
+                            const references = toot['references'].map( (re) => {
+                                return `<li>${re}</li>`;
+                            }).join("\n");
+                            $(".Details").html(`
+<div class="TootMeta"><tt>${published} - ${attributedTo}</tt></div>
+<div class="TootText">&gt;&gt;{text}${content}</div>
+<div class="TootText">&gt;&gt;{references}<ul>${references}</ul>
+</div>
+                            `);
+                            return false;
+                        });
+                    }).fail(function(){
+                        console.log("Failed to retrieve /inbox/");
+                    });
+                    setTimeout(updateList, 2000);
+                }
+            </script>
+        </main>
+    </body>
+</html>

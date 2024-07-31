@@ -140,7 +140,7 @@ async function processItem(item, opts) {
             if (response.ok) {
                 const body = await response.json();
 
-                writeOutput(body, { inbox: opts.inbox , handler: opts.handler });
+                await writeOutput(id, body, { inbox: opts.inbox , handler: opts.handler });
             }
         }
         catch (e) {
@@ -148,30 +148,31 @@ async function processItem(item, opts) {
         }
     }
     else if (opts.serialize_type === 'megalodon') {
-        writeOutput(item, { inbox: opts.inbox , handler: opts.handler });
+        await writeOutput(id, item, { inbox: opts.inbox , handler: opts.handler });
     }
     else {
         logger.error(`unknown serializer type: ${opts.serialize_type} : use 'raw' or 'megalodon'`);
     }
 }
 
-function writeOutput(item,opts) {
-    const id = item.id;
-    const file = `${opts.inbox}/${id}.jsonld`;
+async function writeOutput(id,item,opts) {
+    const processed_item = await dynamic_handler(opts.handler, default_handler)(item);
 
-    const processed_item = dynamic_handler(opts.handler, default_handler)(item);
+    for (let i = 0 ; i < processed_item.length ; i++) {
+        const file = `${opts.inbox}/${id}-${i+1}.jsonld`;
 
-    if (opts.inbox === 'stdout') {
-        console.log(JSON.stringify(processed_item,null,2));
-    }
-    else {
-        logger.debug(`writing ${file}`);
-        fs.writeFileSync(file, JSON.stringify(processed_item,null,2)); 
+        if (opts.inbox === 'stdout') {
+            console.log(JSON.stringify(processed_item[i],null,2));
+        }
+        else {
+            logger.debug(`writing ${file}`);
+            fs.writeFileSync(file, JSON.stringify(processed_item[i],null,2)); 
+        }
     }
 }
 
 function default_handler(item) {
-    return item;
+    return [ item ];
 }
 
 function dynamic_handler(handler,fallback) {

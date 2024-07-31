@@ -22,9 +22,13 @@ function handle(item) {
         }
     }
 
-    item['references'] = zreferences;
-
-    return item;
+    if (zreferences.length) {
+        item['references'] = zreferences;
+        return [ item ];
+    }
+    else {
+        return [];
+    }
 }
 
 module.exports = { handle };

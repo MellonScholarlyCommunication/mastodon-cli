@@ -5,11 +5,18 @@
   "main": "index.js",
   "author": "Patrick Hochstenbach <Patrick.Hochstenbach@UGent.be>",
   "license": "MIT",
+  "scripts": {
+    "fetch": "node ./bin/mastodon-cli.js",
+    "server": "npx ldn-inbox-server start-server --inbox-public",
+    "clean": "rm inbox/*",
+    "real-clean": "rm .history ; rm inbox/*"
+  },
   "dependencies": {
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
     "jquery": "^3.7.1",
     "jsdom": "^24.1.1",
+    "ldn-inbox-server": "^1.4.2",
     "log4js": "^6.9.1",
     "megalodon": "^10.0.2",
     "node-fetch": "1.7.3"
