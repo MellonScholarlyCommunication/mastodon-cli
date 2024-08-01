@@ -13,7 +13,7 @@ const INBOX_PATH = process.env.MASTODON_INBOX_PATH ?? './inbox';
 const EXCLUDE_TYPES = process.env.MASTODON_EXCLUDE_TYPES ?? '';
 const LIMIT_NUM = process.env.MASTODON_LIMIT_NUM ?? 10;
 const HISTORY_FILE = process.env.MASTODON_HISTORY_FILE;
-const SERIALIZE_TYPE = process.env.MASTODON_SERIALIZE_TYPE ?? 'raw';
+const SERIALIZE_TYPE = process.env.MASTODON_SERIALIZE_TYPE ?? 'native';
 const HANDLER = process.env.MASTODON_HANDLER;
 
 const log4js = require('log4js');
