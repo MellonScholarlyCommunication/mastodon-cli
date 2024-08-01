@@ -111,6 +111,7 @@ async function fetchNotifications(url,opts) {
                     since_id: opts.since
                 })
                 .then((res) => {
+                    logger.debug(res);
                     resolve(res.data);
                 });
         }
@@ -120,38 +121,46 @@ async function fetchNotifications(url,opts) {
 async function processItem(item, opts) {
     const type = item.type;
 
-    if (type !== 'mention') return;
-
     const id = item.id;
-    const url  = item.status.url;
+    const url  = item.status?.url;
     const date = item.created_at;
-    const account = item.account.acct;
+    const account = item.account?.acct;
 
-    logger.info(`${id} ${date} ${account} ${url}`);
+    logger.info(`${id} ${date} ${type} ${account} ${url}`);
 
-    if (opts.serialize_type === 'raw') {
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    'accept': 'application/activity+json'
+    if (opts.serialize_type === 'as2') {
+        if (url) {
+            try {
+                logger.debug(`fetching ${url}`);
+
+                const response = await fetch(url, {
+                    headers: {
+                        'accept': 'application/activity+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const body = await response.json();
+
+                    await writeOutput(id, body, { inbox: opts.inbox , handler: opts.handler });
                 }
-            });
-
-            if (response.ok) {
-                const body = await response.json();
-
-                await writeOutput(id, body, { inbox: opts.inbox , handler: opts.handler });
+                else {
+                    logger.error(`failed to fetch ${url}`);
+                }
+            }
+            catch (e) {
+                logger.error(e);
             }
         }
-        catch (e) {
-            logger.error(e);
+        else {
+            logger.warn(`no url for ${id} (${type})`);
         }
     }
-    else if (opts.serialize_type === 'megalodon') {
+    else if (opts.serialize_type === 'native') {
         await writeOutput(id, item, { inbox: opts.inbox , handler: opts.handler });
     }
     else {
-        logger.error(`unknown serializer type: ${opts.serialize_type} : use 'raw' or 'megalodon'`);
+        logger.error(`unknown serializer type: ${opts.serialize_type} : use 'as2' or 'native'`);
     }
 }
 
