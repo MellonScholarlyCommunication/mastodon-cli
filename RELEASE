@@ -1,0 +1,6 @@
+2024-08-05 1.0.1
+    - Support for .meta files in inbox
+    - Support for generating LDN2+AS2 Event Notifications from Fediverse native format
+
+2024-07-31 1.0.0
+    - Initial release
