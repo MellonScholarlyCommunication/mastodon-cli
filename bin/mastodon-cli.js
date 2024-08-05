@@ -177,6 +177,19 @@ async function writeOutput(id,item,opts) {
             logger.debug(`writing ${file}`);
             fs.writeFileSync(file, JSON.stringify(processed_item[i],null,2)); 
         }
+
+        const meta_file = `${opts.inbox}/${id}-${i+1}.jsonld.meta`;
+
+        if (opts.inbox === 'stdout') {
+            // Do nothing
+        }
+        else {
+            logger.debug(`writing ${meta_file}`);
+            fs.writeFileSync(meta_file, JSON.stringify({
+                'Content-Type': 'application/ld+json',
+                'Access-Control-Allow-Origin': '*'
+            },null,2));
+        }
     }
 }
 

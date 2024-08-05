@@ -40,6 +40,9 @@
 
             <h2>Inbox</h2>
 
+            <p>[<a href="inbox/">Show</a>]</p>
+
+            <i>Contents</i>
             <ul class="List"> 
             </ul>
 
@@ -66,16 +69,18 @@
                             e.preventDefault();
                             const href = $(this).attr('href');
                             const toot = await $.getJSON(href);
-                            const content = toot['content'].replace(/(<([^>]+)>)/ig, '');
+                            const content = toot['object']['content'].replace(/(<([^>]+)>)/ig, '');
                             const published = toot['published'];
-                            const attributedTo = toot['attributedTo'];
-                            const references = toot['references'].map( (re) => {
-                                return `<li><a href=\"${re}" class=\"reference">${re}</a></li>`;
+                            const attributedTo = toot['actor']['id'];
+                            const urls = toot['object']['url'];
+
+                            const references = urls.map( (re) => {
+                                return `<li><a href=\"${re.href}" class=\"reference">${re.href}</a></li>`;
                             }).join("\n");
 
                             let metadata = '<ul>';
-                            for (let i = 0; i < toot['references'].length ; i++) {
-                                const met = await getMetdata(toot['references'][i]);
+                            for (let i = 0; i < urls.length ; i++) {
+                                const met = await getMetdata(urls[i]['href']);
                                 metadata += `<li class="Metadata">${JSON.stringify(met)}</li>`;
                             }
 
@@ -103,8 +108,11 @@ ${metadata}
                             data:        url,
                             contentType: "text/plain",
                             dataType:    "json",
-                            success:     function(result){
+                            success:     function(result) {
                                 resolve(result);
+                            },
+                            error: function() {
+                                resolve({'error':'no zotero server available'});
                             }
                         });
                     });
