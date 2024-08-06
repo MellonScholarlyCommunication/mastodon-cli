@@ -4,6 +4,7 @@ const { program } = require('commander');
 const megalodon = require('megalodon');
 const fetch = require('node-fetch');
 const fs = require('fs');
+const fsPath = require('path');
 const path = require('path');
 require('dotenv').config();
 
@@ -204,6 +205,7 @@ function dynamic_handler(handler,fallback) {
             return handler;
         }
         else {
+            handler = handler.replaceAll(/@handler/g,fsPath.resolve(__dirname,'..','handler'));
             const abs_handler = path.resolve(handler);
             logger.debug(`trying dynamic load of ${handler} -> ${abs_handler}`);
             delete require.cache[abs_handler];
