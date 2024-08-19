@@ -55,7 +55,7 @@ program
 
         if (options.history && fs.existsSync(options.history)) {
             since = fs.readFileSync(options.history, { encoding: 'utf-8' });
-            logger.info(`${options.history} -> since ${since}`);
+            logger.debug(`${options.history} -> since ${since}`);
         }
 
         if (options.since) {
@@ -84,7 +84,7 @@ program
                 const last_id = items.sort( (a,b) => {
                     return b['created_at'].localeCompare(a['created_at']);  
                 })[0].id;
-                logger.info(`${options.history} <- since ${last_id}`);
+                logger.debug(`${options.history} <- since ${last_id}`);
                 fs.writeFileSync(options.history,last_id);
             }
         }
