@@ -2,7 +2,7 @@
   "name": "mastodon-cli",
   "version": "1.0.2",
   "description": "A mastodon client",
-  "main": "index.js",
+  "main": "lib/index.js",
   "author": "Patrick Hochstenbach <Patrick.Hochstenbach@UGent.be>",
   "license": "MIT",
   "bin": "./bin/mastodon-cli.js",

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require('commander');
-const megalodon = require('megalodon');
+const { sendNotification , fetchNotifications , getProfile , getResearcherProfile } = require('../lib');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const fsPath = require('path');
@@ -31,6 +31,9 @@ log4js.configure({
 
 program
   .name('mastodon-cli')
+
+program
+  .command('fetch')
   .option('--url <url>','Mastodon host',BASE_URL)
   .option('--token <access_token>','Mastodon access token', ACCESS_TOKEN)
   .option('--inbox <path>', 'Inbox to store notifications', INBOX_PATH)
@@ -90,34 +93,31 @@ program
         }
   });
 
+program 
+  .command('post')
+  .option('--url <url>','Mastodon host',BASE_URL)
+  .option('--token <access_token>','Mastodon access token', ACCESS_TOKEN)
+  .argument('<toot>','toot to send')
+  .action( async(toot,options) => {
+    await sendNotification(options.url,toot,options);
+  });
+
+program
+  .command('profile') 
+  .option('-r,--researcher','researcher profile')
+  .argument('<url>','account link') 
+  .action( async(url,options) => {
+    if (options.researcher) {
+        const profile = await getResearcherProfile(url);
+        console.log(profile);
+    }
+    else {
+        const profile = await getProfile(url);
+        console.log(profile);
+    }
+  });
+
 program.parse();
-
-async function fetchNotifications(url,opts) {
-    return new Promise( (resolve) => {
-        const generator = megalodon.default;
-        const client = generator('mastodon', url, opts.token);
-
-        logger.debug(opts);
-
-        if (opts.by_id) {
-            client.getNotification(opts.by_id).then( (res) => {
-                logger.debug(JSON.stringify(res.data,null,2));
-                resolve([res.data]);
-            });
-        }
-        else {
-            client.getNotifications({
-                    limit: opts.limit ,
-                    exclude_types: opts.exclude,
-                    since_id: opts.since
-                })
-                .then((res) => {
-                    logger.debug(res);
-                    resolve(res.data);
-                });
-        }
-    });
-}
 
 async function processItem(item, opts) {
     const type = item.type;
