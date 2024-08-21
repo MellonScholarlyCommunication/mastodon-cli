@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require('commander');
-const { sendNotification , fetchNotifications , getProfile , getResearcherProfile } = require('../lib');
+const { sendNotification , fetchNotifications , getProfile , getAttachment } = require('../lib');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const fsPath = require('path');
@@ -104,11 +104,12 @@ program
 
 program
   .command('profile') 
-  .option('-r,--researcher','researcher profile')
+  .option('-a,--attachment <regex>','attachment field regex')
   .argument('<url>','account link') 
   .action( async(url,options) => {
-    if (options.researcher) {
-        const profile = await getResearcherProfile(url);
+    if (options.attachment) {
+        const re = new RegExp(options.attachment,"i");
+        const profile = await getAttachment(url,re);
         console.log(profile);
     }
     else {
