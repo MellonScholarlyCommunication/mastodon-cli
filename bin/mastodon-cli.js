@@ -41,6 +41,7 @@ program
   .option('--limit <num>', 'Limit number of notifications fetched', LIMIT_NUM)
   .option('--history <file>', 'Keep and use last since id from history file',HISTORY_FILE)
   .option('--id <id>', 'Get one notification by id')
+  .option('--streaming')
   .option('--since <id>', 'Return results more recent than id')
   .option('--type <output>', 'Serialize what?', SERIALIZE_TYPE)
   .option('--handler <handler>', 'Notification handler',HANDLER)
@@ -51,6 +52,7 @@ program
         const inbox = options.inbox;
         const limit = options.limit;
         const by_id = options.id;
+        const by_streaming = options.streaming;
         const serialize_type = options.type;
         const handler = options.handler;
 
@@ -70,7 +72,20 @@ program
             limit: limit ,
             exclude: exclude ,
             since: since ,
-            by_id: by_id
+            by_id: by_id,
+            by_streaming: by_streaming
+        }, (item) => {
+            processItem(item, {
+                inbox: inbox ,
+                serialize_type: serialize_type ,
+                handler: handler
+            }); 
+
+            if (options.history) {
+                const last_id = item.id;
+                logger.debug(`${options.history} <- since ${last_id}`);
+                fs.writeFileSync(options.history,last_id);
+            }
         });
 
         if (items && items.length) {
@@ -97,9 +112,18 @@ program
   .command('post')
   .option('--url <url>','Mastodon host',BASE_URL)
   .option('--token <access_token>','Mastodon access token', ACCESS_TOKEN)
+  .option('--visibility <visibility>','Status visibility public|private|unlisted|direct','public')
   .argument('<toot>','toot to send')
   .action( async(toot,options) => {
-    await sendNotification(options.url,toot,options);
+    try {
+        const response = await sendNotification(options.url,toot,options);
+        logger.info(response.url);
+        process.exit(0);
+    }
+    catch (e) {
+        logger.error(`whoops: ${e.message}`);
+        process.exit(2);
+    }
   });
 
 program
