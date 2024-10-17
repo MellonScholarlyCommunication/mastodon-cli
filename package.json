@@ -1,6 +1,6 @@
 {
   "name": "mastodon-cli",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A mastodon client",
   "main": "lib/index.js",
   "author": "Patrick Hochstenbach <Patrick.Hochstenbach@UGent.be>",
