@@ -7,7 +7,7 @@
   "license": "MIT",
   "bin": "./bin/mastodon-cli.js",
   "scripts": {
-    "fetch": "node ./bin/mastodon-cli.js",
+    "fetch": "node ./bin/mastodon-cli.js fetch",
     "clean": "rm inbox/*",
     "real-clean": "rm .history ; rm inbox/*"
   },

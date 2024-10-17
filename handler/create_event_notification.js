@@ -74,6 +74,11 @@ async function handle(item) {
             "content": item['status']['content'],
             "url": links ,
             "type": "Note"
+        },
+        "generator": {
+            "id": "https://www.npmjs.com/package/mastodon-cli",
+            "type": "Application",
+            "context": item['status']['url']
         }
     };
 
