@@ -16,6 +16,7 @@ yarn install
 
 ## OPTIONS
 
+- `--account <account_id>` : Return toots of a specific account
 - `--url <url>` : Mastodon host (e.g. https://openbiblio.social)
 - `--token <access_token>` : Mastodon access token generated for his application (see. your Mastoson profile, configuration, development)
 - `--inbox <path|stdout>` : When to store the notifications

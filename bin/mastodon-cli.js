@@ -34,6 +34,7 @@ program
 
 program
   .command('fetch')
+  .option('--account <account>','Mastodon account')
   .option('--url <url>','Mastodon host',BASE_URL)
   .option('--token <access_token>','Mastodon access token', ACCESS_TOKEN)
   .option('--inbox <path>', 'Inbox to store notifications', INBOX_PATH)
@@ -46,6 +47,7 @@ program
   .option('--type <output>', 'Serialize what?', SERIALIZE_TYPE)
   .option('--handler <handler>', 'Notification handler',HANDLER)
   .action( async (options) => {
+        const account = options.account;
         const url = options.url;
         const token = options.token;
         const exclude = options.exclude.split(",");
@@ -68,6 +70,7 @@ program
         }
 
         const items = await fetchNotifications(url, {
+            account: account ,
             token: token ,
             limit: limit ,
             exclude: exclude ,
@@ -139,6 +142,22 @@ program
     else {
         const profile = await getProfile(url);
         console.log(profile);
+    }
+  });
+
+program
+  .command('account')
+  .option('--url <url>','Mastodon host',BASE_URL)
+  .argument('<username>','Mastodon username')
+  .action( async(username, opts) => {
+    const res = await fetch(`${opts.url}/api/v1/accounts/lookup?acct=${username}`);
+    
+    if (res.ok) {
+        console.log(await res.json());
+    }
+    else {
+        console.error(res.statusText);
+        process.exitCode = 2;
     }
   });
 
