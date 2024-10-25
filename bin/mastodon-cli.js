@@ -44,6 +44,7 @@ program
   .option('--id <id>', 'Get one notification by id')
   .option('--streaming')
   .option('--since <id>', 'Return results more recent than id')
+  .option('--older <id>', 'Return results order than id')
   .option('--type <output>', 'Serialize what?', SERIALIZE_TYPE)
   .option('--handler <handler>', 'Notification handler',HANDLER)
   .action( async (options) => {
@@ -57,6 +58,7 @@ program
         const by_streaming = options.streaming;
         const serialize_type = options.type;
         const handler = options.handler;
+        const max_id = options.older;
 
         let since;
 
@@ -75,7 +77,8 @@ program
             limit: limit ,
             exclude: exclude ,
             since: since ,
-            by_id: by_id,
+            max_id: max_id ,
+            by_id: by_id ,
             by_streaming: by_streaming
         }, (item) => {
             processItem(item, {

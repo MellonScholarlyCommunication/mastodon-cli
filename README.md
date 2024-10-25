@@ -25,6 +25,7 @@ yarn install
 - `--limit <num>` : The maximum number of notifications to retrieve
 - `--id <id>` : Retrieve one notification by id
 - `--since <id>` : Retrieve notifications created since some id
+- `--older <id>` : Retrieve notifications older than some id
 - `--serialize <ouput>` : What to serialize? 'as2': ActivityStreams2 (fetched from remote) , 'native': Megalodon processed JSON
 - `--handler <handler>` : Handler JS file that can preprocess the generated output
 
