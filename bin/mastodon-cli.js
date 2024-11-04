@@ -156,7 +156,8 @@ program
     const res = await fetch(`${opts.url}/api/v1/accounts/lookup?acct=${username}`);
     
     if (res.ok) {
-        console.log(await res.json());
+        const data = await res.json();
+        console.log(JSON.stringify(data,null,2));
     }
     else {
         console.error(res.statusText);
