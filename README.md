@@ -8,6 +8,12 @@ A Mastodon client to store and process Toots
 yarn install
 ```
 
+## CONFIGURE
+
+```
+cp .env-example .env
+```
+
 ## USAGE
 
 ```
