@@ -151,17 +151,27 @@ program
 program
   .command('account')
   .option('--url <url>','Mastodon host',BASE_URL)
+  .option('-t,--timeout <seconds>','Timeout',1)
   .argument('<username>','Mastodon username')
   .action( async(username, opts) => {
-    const res = await fetch(`${opts.url}/api/v1/accounts/lookup?acct=${username}`);
-    
-    if (res.ok) {
-        const data = await res.json();
-        console.log(JSON.stringify(data,null,2));
+    try {
+        let host = opts.url;
+        
+        const res = await fetchWithTimeout(`${host}/api/v1/accounts/lookup?acct=${username}`,{
+            timeout: opts.timeout * 1000
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            console.log(JSON.stringify(data,null,2));
+        }
+        else {
+            console.error(res.statusText);
+            process.exitCode = 2;
+        }
     }
-    else {
-        console.error(res.statusText);
-        process.exitCode = 2;
+    catch(e) {
+        console.error(`failed: ${e.message}`);
     }
   });
 
@@ -265,4 +275,19 @@ function dynamic_handler(handler,fallback) {
         logger.debug(`using fallback handler`);
         return fallback;
     }
+}
+
+async function fetchWithTimeout(resource, options = {}) {
+    const { timeout = 8000 } = options;
+    
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+  
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal  
+    });
+    clearTimeout(id);
+  
+    return response;
 }
