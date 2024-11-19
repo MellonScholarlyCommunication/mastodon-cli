@@ -3,6 +3,9 @@ const { v4: uuidv4 } = require('uuid');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
 
+const SPLIT_LINKS = process.env.MASTODON_HANDLER_FEATURE ? 
+                        (/split_links/).test(process.env.MASTODON_HANDLER_FEATURE) : false;
+
 /**
  * Extract references from the toot (if available) and
  * generate an Event Notification
@@ -52,6 +55,23 @@ async function handle(item) {
         });
     }
 
+    if (SPLIT_LINKS) {
+        const results = [];
+
+        for (let i = 0 ; i < links.length ; i++) {
+            const resultItem = makeAnnounce(profile,item, [ links[i] ]);
+            results.push(resultItem);
+        }
+
+        return results;
+    }
+    else {
+        const resultItem = makeAnnounce(profile, item, links);
+        return [ resultItem ];
+    }
+}
+
+function makeAnnounce(profile,item,links) {
     const resultItem = {
         "@context" : "https://www.w3.org/ns/activitystreams" ,
         "id": `urn:uuid:${uuidv4()}`,
@@ -82,7 +102,7 @@ async function handle(item) {
         }
     };
 
-    return [ resultItem ];
+    return resultItem;
 }
 
 async function findProfile(url) {
