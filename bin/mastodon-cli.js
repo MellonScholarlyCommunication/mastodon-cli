@@ -71,46 +71,52 @@ program
             since = options.since;
         }
 
-        const items = await fetchNotifications(url, {
-            account: account ,
-            token: token ,
-            limit: limit ,
-            exclude: exclude ,
-            since: since ,
-            max_id: max_id ,
-            by_id: by_id ,
-            by_streaming: by_streaming
-        }, (item) => {
-            processItem(item, {
-                inbox: inbox ,
-                serialize_type: serialize_type ,
-                handler: handler
-            }); 
-
-            if (options.history) {
-                const last_id = item.id;
-                logger.debug(`${options.history} <- since ${last_id}`);
-                fs.writeFileSync(options.history,last_id);
-            }
-        });
-
-        if (items && items.length) {
-            for (let i = 0 ; i < items.length ; i += 1) {
-                processItem(items[i], {
+        try {
+            const items = await fetchNotifications(url, {
+                account: account ,
+                token: token ,
+                limit: limit ,
+                exclude: exclude ,
+                since: since ,
+                max_id: max_id ,
+                by_id: by_id ,
+                by_streaming: by_streaming
+            }, (item) => {
+                processItem(item, {
                     inbox: inbox ,
                     serialize_type: serialize_type ,
                     handler: handler
-                });
-            }
+                }); 
 
-            if (options.history) {
-                // Searching for the most recent id
-                const last_id = items.sort( (a,b) => {
-                    return b['created_at'].localeCompare(a['created_at']);  
-                })[0].id;
-                logger.debug(`${options.history} <- since ${last_id}`);
-                fs.writeFileSync(options.history,last_id);
+                if (options.history) {
+                    const last_id = item.id;
+                    logger.debug(`${options.history} <- since ${last_id}`);
+                    fs.writeFileSync(options.history,last_id);
+                }
+            });
+
+            if (items && items.length) {
+                for (let i = 0 ; i < items.length ; i += 1) {
+                    processItem(items[i], {
+                        inbox: inbox ,
+                        serialize_type: serialize_type ,
+                        handler: handler
+                    });
+                }
+
+                if (options.history) {
+                    // Searching for the most recent id
+                    const last_id = items.sort( (a,b) => {
+                        return b['created_at'].localeCompare(a['created_at']);  
+                    })[0].id;
+                    logger.debug(`${options.history} <- since ${last_id}`);
+                    fs.writeFileSync(options.history,last_id);
+                }
             }
+        }
+        catch (e) {
+            logger.error(`failed: ${e.message}`);
+            logger.debug(e);
         }
   });
 
