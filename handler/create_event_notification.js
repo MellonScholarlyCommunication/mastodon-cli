@@ -72,11 +72,12 @@ async function handle(item) {
 }
 
 function makeAnnounce(profile,item,links) {
+    const published = item['created_at'] || item['status']['created_at'];
     const resultItem = {
         "@context" : "https://www.w3.org/ns/activitystreams" ,
         "id": `urn:uuid:${uuidv4()}`,
         "type": "Announce",
-        "published": item['status']['created_at'],
+        "published": published,
         "actor": {
             "id": item['account']['url'],
             "name": item['account']['display_name'],
