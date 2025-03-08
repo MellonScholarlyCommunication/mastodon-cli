@@ -285,7 +285,7 @@ async function processItem(item, opts) {
 }
 
 async function writeOutput(id,item,opts) {
-    const processed_item = (await dynamic_handler(opts.handler, null)).handle(item);
+    const processed_item = await (await dynamic_handler(opts.handler, null)).handle(item);
 
     for (let i = 0 ; i < processed_item.length ; i++) {
         const file = `${opts.inbox}/${id}-${i+1}.jsonld`;
