@@ -123,4 +123,4 @@ async function findProfile(url) {
     }
 }
 
-module.exports = { handle };
+module.exports = { handle , makeAnnounce };

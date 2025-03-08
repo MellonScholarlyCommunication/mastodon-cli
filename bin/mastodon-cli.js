@@ -6,6 +6,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const fsPath = require('path');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const BASE_URL = process.env.MASTODON_URL;
@@ -31,6 +32,34 @@ log4js.configure({
 
 program
   .name('mastodon-cli')
+
+program
+  .command('account')
+  .option('--url <url>','Mastodon host',BASE_URL)
+  .option('-t,--timeout <seconds>','Timeout',1)
+  .argument('<username>','Mastodon username')
+  .action( async(username, opts) => {
+    try {
+        let host = opts.url;
+        
+        const res = await fetchWithTimeout(`${host}/api/v1/accounts/lookup?acct=${username}`,{
+            timeout: opts.timeout * 1000
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            console.log(JSON.stringify(data,null,2));
+        }
+        else {
+            console.error(res.statusText);
+            process.exitCode = 2;
+        }
+    }
+    catch(e) {
+        console.error(`failed: ${e.message}`);
+    }
+  });
+
 
 program
   .command('fetch')
@@ -120,6 +149,59 @@ program
         }
   });
 
+program
+  .command('generate')
+  .option('--account-id <url>','Account Id','http://localhost/profile/card#me')
+  .option('--account-inbox <url>','Account Inbox','http://localhost/inbox/')
+  .option('--account-name <name>','Account Name','Test Account')
+  .option('--handler <handler>', 'Notification handler',HANDLER)
+  .option('--inbox <path>', 'Inbox to store notifications', INBOX_PATH)
+  .argument('<toot>','A toot message')
+  .action( async (toot,options) => {
+        const generator = (await dynamic_handler(options.handler, null)).makeAnnounce;
+        const profile = {
+            inbox: options.accountInbox
+        };
+        const item = {
+            created_at: (new Date()).toISOString(),
+            account: {
+                url: options.accountId,
+                display_name: options.accountName
+            },
+            status: {
+                url: `urn:uuid:${uuidv4()}`,
+                content: toot
+            }
+        };
+        const links = [];
+
+        const result = toot.match(/(http:\S+)/g);
+
+        for (let i = 0 ; i < result.length ; i++) {
+            links.push({
+                type: 'Link',
+                href: result[i]
+            });
+        }
+
+        for (let i = 0; i < links.length ; i++) {
+            const part = links[i];
+            const json = generator(profile,item,[part]);
+            const file = `${options.inbox}/${json.id.replaceAll(/urn:uuid:/g,'')}-${i+1}.jsonld}`;
+            const meta_file = `${file}.meta`;
+            if (options.inbox === 'stdout') {
+                console.log(JSON.stringify(json,null,2));
+            }
+            else {
+                fs.writeFileSync(file, JSON.stringify(json,null,2)); 
+                fs.writeFileSync(meta_file, JSON.stringify({
+                    'Content-Type': 'application/ld+json',
+                    'Access-Control-Allow-Origin': '*'
+                },null,2));
+            }
+        }
+  });
+
 program 
   .command('post')
   .option('--url <url>','Mastodon host',BASE_URL)
@@ -151,33 +233,6 @@ program
     else {
         const profile = await getProfile(url);
         console.log(profile);
-    }
-  });
-
-program
-  .command('account')
-  .option('--url <url>','Mastodon host',BASE_URL)
-  .option('-t,--timeout <seconds>','Timeout',1)
-  .argument('<username>','Mastodon username')
-  .action( async(username, opts) => {
-    try {
-        let host = opts.url;
-        
-        const res = await fetchWithTimeout(`${host}/api/v1/accounts/lookup?acct=${username}`,{
-            timeout: opts.timeout * 1000
-        });
-        
-        if (res.ok) {
-            const data = await res.json();
-            console.log(JSON.stringify(data,null,2));
-        }
-        else {
-            console.error(res.statusText);
-            process.exitCode = 2;
-        }
-    }
-    catch(e) {
-        console.error(`failed: ${e.message}`);
     }
   });
 
@@ -230,7 +285,7 @@ async function processItem(item, opts) {
 }
 
 async function writeOutput(id,item,opts) {
-    const processed_item = await dynamic_handler(opts.handler, default_handler)(item);
+    const processed_item = (await dynamic_handler(opts.handler, null)).handle(item);
 
     for (let i = 0 ; i < processed_item.length ; i++) {
         const file = `${opts.inbox}/${id}-${i+1}.jsonld`;
@@ -258,10 +313,6 @@ async function writeOutput(id,item,opts) {
     }
 }
 
-function default_handler(item) {
-    return [ item ];
-}
-
 function dynamic_handler(handler,fallback) {
     if (handler) {
         if (typeof handler === 'function') {
@@ -273,8 +324,8 @@ function dynamic_handler(handler,fallback) {
             const abs_handler = path.resolve(handler);
             logger.debug(`trying dynamic load of ${handler} -> ${abs_handler}`);
             delete require.cache[abs_handler];
-            const func = require(abs_handler).handle;
-            return func;
+            const pkg = require(abs_handler);
+            return pkg;
         }
     }
     else {
