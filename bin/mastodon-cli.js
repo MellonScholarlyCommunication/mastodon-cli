@@ -175,13 +175,18 @@ program
         };
         const links = [];
 
-        const result = toot.match(/(http:\S+)/g);
+        const result = toot.match(/(https?:\S+)/g);
 
-        for (let i = 0 ; i < result.length ; i++) {
-            links.push({
-                type: 'Link',
-                href: result[i]
-            });
+        if (result) {
+            for (let i = 0 ; i < result.length ; i++) {
+                links.push({
+                    type: 'Link',
+                    href: result[i]
+                });
+            }
+        }
+        else {
+            links.push({});
         }
 
         for (let i = 0; i < links.length ; i++) {
