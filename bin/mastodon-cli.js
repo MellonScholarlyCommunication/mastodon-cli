@@ -192,7 +192,7 @@ program
         for (let i = 0; i < links.length ; i++) {
             const part = links[i];
             const json = generator(profile,item,[part]);
-            const file = `${options.inbox}/${json.id.replaceAll(/urn:uuid:/g,'')}-${i+1}.jsonld}`;
+            const file = `${options.inbox}/${json.id.replaceAll(/urn:uuid:/g,'')}-${i+1}.jsonld`;
             const meta_file = `${file}.meta`;
             if (options.inbox === 'stdout') {
                 console.log(JSON.stringify(json,null,2));
