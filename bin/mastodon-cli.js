@@ -199,10 +199,6 @@ program
             }
             else {
                 fs.writeFileSync(file, JSON.stringify(json,null,2)); 
-                fs.writeFileSync(meta_file, JSON.stringify({
-                    'Content-Type': 'application/ld+json',
-                    'Access-Control-Allow-Origin': '*'
-                },null,2));
             }
         }
   });
