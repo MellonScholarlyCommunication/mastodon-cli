@@ -198,6 +198,7 @@ program
                 console.log(JSON.stringify(json,null,2));
             }
             else {
+                console.error(`generated ${file}`);
                 fs.writeFileSync(file, JSON.stringify(json,null,2)); 
             }
         }
