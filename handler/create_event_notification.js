@@ -108,17 +108,24 @@ function makeAnnounce(profile,item,links) {
 
 async function findProfile(url) {
     logger.debug(`dereferencing ${url}`);
-    const response = await fetch(url, {
-        headers: {
-            'accept': 'application/activity+json'
-        }
-    });
 
-    if (response.ok) {
-        return await response.json();
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'accept': 'application/activity+json'
+            }
+        });
+
+        if (response.ok) {
+            return await response.json();
+        }
+        else {
+            logger.error(`got ${response.status} - ${response.statusText} when dereferencing ${url}`);
+            return undefined;
+        }
     }
-    else {
-        logger.error(`got ${response.status} - ${response.statusText} when dereferencing ${url}`);
+    catch (e) {
+        logger.error(`failed to contact ${url} : ${e.name} - ${e.message}`);
         return undefined;
     }
 }
