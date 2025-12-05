@@ -114,7 +114,7 @@ program
                 processItem(item, {
                     inbox: inbox ,
                     serialize_type: serialize_type ,
-                    handler: handler
+                    handler: handler 
                 }); 
 
                 if (options.history) {
