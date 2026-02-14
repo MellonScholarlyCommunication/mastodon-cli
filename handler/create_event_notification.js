@@ -126,6 +126,7 @@ async function findProfile(url) {
     }
     catch (e) {
         logger.error(`failed to contact ${url} : ${e.name} - ${e.message}`);
+        logger.error(e);
         return undefined;
     }
 }
