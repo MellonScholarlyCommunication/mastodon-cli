@@ -13,6 +13,7 @@ const BASE_URL = process.env.MASTODON_URL;
 const ACCESS_TOKEN = process.env.MASTODON_ACCESS_TOKEN;
 const INBOX_PATH = process.env.MASTODON_INBOX_PATH ?? './inbox';
 const EXCLUDE_TYPES = process.env.MASTODON_EXCLUDE_TYPES ?? '';
+const INCLUDE_TYPES = process.env.MASTODON_INCLUDE_TYPES ?? 'mention';
 const LIMIT_NUM = process.env.MASTODON_LIMIT_NUM ?? 10;
 const HISTORY_FILE = process.env.MASTODON_HISTORY_FILE;
 const SERIALIZE_TYPE = process.env.MASTODON_SERIALIZE_TYPE ?? 'native';
@@ -67,7 +68,8 @@ program
   .option('--url <url>','Mastodon host',BASE_URL)
   .option('--token <access_token>','Mastodon access token', ACCESS_TOKEN)
   .option('--inbox <path>', 'Inbox to store notifications', INBOX_PATH)
-  .option('--exclude <types>', 'Exclude notification types', EXCLUDE_TYPES)
+  .option('--exclude <types>', 'Exclude notification types (denylist)', EXCLUDE_TYPES)
+  .option('--include <types>', 'Only these notification types (allowlist; wins over --exclude)', INCLUDE_TYPES)
   .option('--limit <num>', 'Limit number of notifications fetched', LIMIT_NUM)
   .option('--history <file>', 'Keep and use last since id from history file',HISTORY_FILE)
   .option('--id <id>', 'Get one notification by id')
@@ -80,7 +82,8 @@ program
         const account = options.account;
         const url = options.url;
         const token = options.token;
-        const exclude = options.exclude.split(",");
+        const exclude = options.exclude.split(",").filter(Boolean);
+        const include = options.include.split(",").filter(Boolean);
         const inbox = options.inbox;
         const limit = options.limit;
         const by_id = options.id;
@@ -106,6 +109,7 @@ program
                 token: token ,
                 limit: limit ,
                 exclude: exclude ,
+                include: include ,
                 since: since ,
                 max_id: max_id ,
                 by_id: by_id ,

@@ -26,7 +26,8 @@ cp .env-example .env
 - `--url <url>` : Mastodon host (e.g. https://openbiblio.social)
 - `--token <access_token>` : Mastodon access token generated for his application (see. your Mastoson profile, configuration, development)
 - `--inbox <path|stdout>` : When to store the notifications
-- `--exclude <types>` : A selection of notification types to ignore
+- `--exclude <types>` : A selection of notification types to ignore (denylist)
+- `--include <types>` : Only these notification types (allowlist; wins over `--exclude`; default `mention`)
 - `--history <file>` : Keep a history file containing the last seen since id
 - `--limit <num>` : The maximum number of notifications to retrieve
 - `--id <id>` : Retrieve one notification by id
